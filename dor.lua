@@ -28,7 +28,7 @@ local Window = Rayfield:CreateWindow({
 		FileName = "L.N.K v1" -- ZEPSYY I TOLD YOU ITS NOT GONNA BE NAMED LINK  
     },
     KeySystem = true,
-    KeySettings - {
+    KeySettings = {
         Title = "DX的密钥系统",
         Subtitle = "密钥系统",
         Note = "QQ群(731361929)",
