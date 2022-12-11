@@ -27,8 +27,15 @@ local Window = Rayfield:CreateWindow({
 		FolderName = nil, -- Create a custom folder for your hub/game
 		FileName = "L.N.K v1" -- ZEPSYY I TOLD YOU ITS NOT GONNA BE NAMED LINK  
     },
-    KeySystem = false
+    KeySystem = true,
+    KeySettings - {
+        Title = "DX的密钥系统",
+        Subtitle = "密钥系统",
+        Note = "QQ群(731361929)",
+        Key = "DXuwu.lol"
+}
 })
+	
 --#endregion
 --#region Connections & Variables
 
