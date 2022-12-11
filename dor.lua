@@ -322,9 +322,19 @@ local ConfigEntities = Window:CreateTab("修改怪物", 8285095937)
 local publicServers = Window:CreateTab("特殊伺服器", 9692125126)
 local Tools=Window:CreateTab("物品", 29402763) 
 local CharacterMods=Window:CreateTab("人物", 483040244)
-local global=Window:CreateTab("公共", 1588352259) 
+local global=Window:CreateTab("公共", 1588352259)
+local info= Window:CreateTab("资讯", 4483345998)
 --#endregion
     
+--region info
+info:CreateParagraph({Title = "如何联系作者", Content = "快手号dxuwulol|QQ群731361929"})
+info:CreateParagraph({Title = "更新", Content = "Seek十字架,万圣节十字架,MC房间,手电筒"})
+info:CreateParagraph({Title = "11.12.2022", Content = "Rayfield UI!!!"})
+info:CreateParagraph({Title = "Bugs", Content = "1. 骷髅钥匙无效 "})
+info:CreateParagraph({Title = "Notes", Content = "哈哈哈"})
+
+--end region
+
 --#region Special Servers
 publicServers:CreateSection("伺服器识别器")
 publicServers:CreateLabel("目前的伺服器识别码: "..game.JobId)
@@ -2020,3 +2030,4 @@ MainTab:CreateInput({
 	end,
 })
 --#endregion
+--new region
