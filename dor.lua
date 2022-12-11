@@ -989,7 +989,7 @@ Tools:CreateParagraph({Title = "注意", Content = "这些都是假的维他命�
 --#endregion
 
 --#region Dropdown
-local toolList={"Skeleton Key", "Crucifix","Seek Crucifix","Halloween Crucifix", "Christmas Guns", "Candle", "Gummy Flashlight", "Gun"}
+local toolList={"Skeleton Key", "Crucifix","Seek Crucifix","Halloween Crucifix", "Christmas Guns", "Candle", "Gummy Flashlight","Flashlight", "Gun"}
 table.sort(toolList)
 local toolFuncs={["Skeleton Key"]=function()
     if not isfile("skellyKey.rbxm") then
@@ -1391,6 +1391,9 @@ end, ["Crucifix"]=function()
 end, ["Christmas Guns"]=function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/NotTypicalAdmin/ChristmasGuns/main/main"))()
 end,
+    ["Flashlight"]=function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/DXuwu/flashlight-lmao/main/flashlight.lua"))()
+end,    
     ["Seek Crucifix"]=function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/RmdComunnityScriptsProvider/AngryHub/main/Seek%20Crucifix.lua"))()
 end,
