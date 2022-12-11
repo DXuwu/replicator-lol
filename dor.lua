@@ -2038,3 +2038,4 @@ MainTab:CreateInput({
 })
 --#endregion
 --new region
+Rayfield:LoadConfiguration()
