@@ -33,7 +33,7 @@ local Window = Rayfield:CreateWindow({
         Subtitle = "密钥系统",
         Note = "QQ群(731361929)",
         Key = "DXuwu.lol"
-}
+    }
 })
 	
 --#endregion
