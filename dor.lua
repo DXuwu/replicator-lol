@@ -27,15 +27,31 @@ local Window = Rayfield:CreateWindow({
 		FolderName = nil, -- Create a custom folder for your hub/game
 		FileName = "L.N.K v1" -- ZEPSYY I TOLD YOU ITS NOT GONNA BE NAMED LINK  
     },
-    KeySystem = false,
+    KeySystem = true,
     KeySettings = {
         Title = "DX的密钥系统",
         Subtitle = "密钥系统",
         Note = "QQ群(731361929)",
-        Key = "DXuwu.lol"
+        Key = "666"
     }
 })
-	
+
+
+
+Rayfield:Notify({
+    Title = "注意",
+    Content = "严禁倒卖此脚本,因为这是免费的,若发现有人倒卖,请立即联系我。请到【咨询】查看信息。",
+    Duration = 6.5,
+    Image = 4483362458,
+    Actions = { -- Notification Buttons
+        Ignore = {
+            Name = "Okay!",
+            Callback = function()
+                print("The user tapped Okay!")
+            end
+		},
+	},
+})
 --#endregion
 --#region Connections & Variables
 
@@ -335,6 +351,8 @@ local info= Window:CreateTab("资讯", 4483345998)
     
 --region info
 info:CreateParagraph({Title = "如何联系作者", Content = "快手号dxuwulol|QQ群731361929"})
+info:CreateParagraph({Title = "如何联系老六【夜】", Content = "QQ号2232877904|QQ群731361929"})
+info:CreateParagraph({Title = "注意", Content = "严禁倒卖,若发现请立即联系我们"})
 info:CreateParagraph({Title = "更新", Content = "Seek十字架,万圣节十字架,MC房间,手电筒"})
 info:CreateParagraph({Title = "11.12.2022", Content = "Rayfield UI!!!"})
 info:CreateParagraph({Title = "Bugs", Content = "1. 骷髅钥匙无效 "})
@@ -773,6 +791,22 @@ DoorsMods:CreateButton({
     end,
 })
 
+DoorsMods:CreateButton({
+    Name = "深海石头房【伟大的老六夜提供】",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/iCherryKardes/Doors/main/Floor%202%20Mod"))()
+    end,
+})
+
+DoorsMods:CreateButton({
+    Name = " 101房【伟大的老六夜提供】",
+    Callback = function()
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/DXuwu/replicator-lol/main/abc.txt"))()
+        end,
+})
+       
+
+local Label = DoorsMods:CreateLabel("夜你个老六你他妈直接这叫第二层模组不行吗我真的觉得很怪去你的")
 
 --#endregion
 --#endregion
