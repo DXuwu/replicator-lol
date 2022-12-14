@@ -19,7 +19,7 @@ for _, tb in pairs(entities) do table.sort(tb) end
 local Rayfield = loadstring(game:HttpGet('https://raw.githubusercontent.com/shlexware/Rayfield/main/source'))()
 
 local Window = Rayfield:CreateWindow({
-	Name = "DX的DOORS gui | 您所使用的执行器："..(identifyexecutor and identifyexecutor() or syn and "Synapse X" or "Unknown"),
+	Name = "DX的DOORS gui【傻逼倒卖统统滚开】 | 您所使用的执行器 ："..(identifyexecutor and identifyexecutor() or syn and "Synapse X" or "Unknown"),
 	LoadingTitle = "正在加载",
 	LoadingSubtitle = "作者DX【源码Sponguss+Zepssy】",
 	ConfigurationSaving = {
@@ -32,7 +32,7 @@ local Window = Rayfield:CreateWindow({
         Title = "DX的密钥系统",
         Subtitle = "密钥系统",
         Note = "QQ群(731361929)",
-        Key = "666"
+        Key = "傻逼夜和牛逼DX"
     }
 })
 
