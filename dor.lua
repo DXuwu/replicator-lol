@@ -32,7 +32,7 @@ local Window = Rayfield:CreateWindow({
         Title = "DX的密钥系统",
         Subtitle = "密钥系统",
         Note = "QQ群(731361929)",
-        Key = "666夜和牛逼DX"
+        Key = "DX.uwu"
     }
 })
 
