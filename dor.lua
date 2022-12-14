@@ -27,7 +27,7 @@ local Window = Rayfield:CreateWindow({
 		FolderName = nil, -- Create a custom folder for your hub/game
 		FileName = "L.N.K v1" -- ZEPSYY I TOLD YOU ITS NOT GONNA BE NAMED LINK  
     },
-    KeySystem = true,
+    KeySystem = false,
     KeySettings = {
         Title = "DX的密钥系统",
         Subtitle = "密钥系统",
