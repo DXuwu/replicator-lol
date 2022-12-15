@@ -8,7 +8,7 @@ end
 local entities={
     AllEntities={"全部","Ambush","Eyes","Glitch","Grundge","Halt","Hide","没有","随机","Rush","Screech","Seek","Shadow","Smiler","Timothy","Trashbag","Trollface"},
     DeveloperEntities={"Trollface", "没有"},
-    CustomEntities={"Grundge","Smiler","Trashbag", "None"},
+    CustomEntities={"Grundge","Smiler","Trashbag", "没有"},
     RegularEntities={"全部", "Ambush", "Eyes", "Glitch", "Halt", "Hide", "随机","没有","Rush","Screech","Seek","Shadow","Timothy"}
 }
 for _, tb in pairs(entities) do table.sort(tb) end
@@ -353,9 +353,9 @@ local info= Window:CreateTab("资讯", 4483345998)
 info:CreateParagraph({Title = "如何联系作者", Content = "快手号dxuwulol|QQ群731361929"})
 info:CreateParagraph({Title = "如何联系老六【夜】", Content = "QQ号2232877904|QQ群731361929"})
 info:CreateParagraph({Title = "注意", Content = "严禁倒卖,若发现请立即联系我们"})
-info:CreateParagraph({Title = "更新", Content = "Seek十字架,万圣节十字架,MC房间,手电筒"})
+info:CreateParagraph({Title = "更新", Content = "修复了骷髅钥匙的bug"})
 info:CreateParagraph({Title = "11.12.2022", Content = "Rayfield UI!!!"})
-info:CreateParagraph({Title = "Bugs", Content = "1. 骷髅钥匙无效 "})
+info:CreateParagraph({Title = "Bugs", Content = " 跳过房间等功能失效 "})
 info:CreateParagraph({Title = "Notes", Content = "哈哈哈"})
 
 --end region
@@ -839,6 +839,85 @@ CharacterMods:CreateButton({
 })
 CharacterMods:CreateParagraph({Title = "注意", Content = "你需要至少一个复活,这样就可以跳过 \"你只可以复活一次\" 的信息, 或其他东东？？？"})
 
+
+	
+local figureMorphEnabled
+global:CreateToggle({
+	Name = "变成 Figure",
+	CurrentValue = false,
+	Flag = "figureBecome",
+	Callback = function(val)
+		figureMorphEnabled=val
+		local figure = workspace.CurrentRooms:FindFirstChild("FigureRagdoll", true)
+		if not figure then
+			return Rayfield:Notify({
+				Title = "错误",
+				Content = "你必须在第49道门使用",
+				Duration = 6,
+				Image = 4483362458,
+				Actions = {}
+			})
+		elseif workspace.CurrentRooms:FindFirstChild("51") then
+			return Rayfield:Notify({
+				Title = "Error",
+				Content = "figure的AI已开启,导致无法使用 (你要在动画前开启)",
+				Duration = 6,
+				Image = 4483362458,
+				Actions = {}
+			})
+		end
+		if sethiddenproperty then
+			repeat
+				sethiddenproperty(game.Players.LocalPlayer, "MaxSimulationRadius", 10000)
+				sethiddenproperty(game.Players.LocalPlayer, "SimulationRadius", 10000)
+				task.wait()
+			until figureMorphEnabled == false
+		end
+		for _, part in pairs(figure:GetDescendants()) do
+			if part:IsA("BasePart") then
+				part:SetAttribute("CollisionValueSave", part.CanCollide)
+				part.CanCollide = false
+				task.spawn(function()
+					repeat
+						task.wait()
+					until figureMorphEnabled == false
+					part.CanCollide = part:GetAttribute"CollisionValueSave"
+				end)
+			end
+		end
+		task.spawn(function()
+            -- HeadMoveAnimation
+			task.spawn(function()
+				repeat
+					game:GetService"TweenService":Create(figure.Head, TweenInfo.new(3), {
+						Orientation = Vector3.new(0, 55, 0)
+					}):Play()
+					wait(3)
+					game:GetService"TweenService":Create(figure.Head, TweenInfo.new(3), {
+						Orientation = Vector3.new(0, 125, 0)
+					}):Play()
+					wait(3)
+					game:GetService"TweenService":Create(figure.Head, TweenInfo.new(3), {
+						Orientation = Vector3.new(0, 90, 0)
+					}):Play()
+					wait(math.random(6, 20))
+				until figureMorphEnabled == false
+			end)
+		end)
+		repeat
+			figure:PivotTo(game.Players.LocalPlayer.Character.PrimaryPart.CFrame + Vector3.new(0, 5, 0))
+			task.wait()
+		until figureMorphEnabled == false
+	end
+})
+global:CreateLabel("源码replicator")		
+		
+		
+		
+		
+		
+		
+		
 CharacterMods:CreateToggle({
     Name="哈哈开启跳跃",
     CurrentValue=false,
@@ -866,6 +945,78 @@ CharacterMods:CreateToggle({
         else con:Disconnect() con2:Disconnect() end
     end
 })
+
+CharacterMods:CreateButton({
+	Name = "跳过当前房间",
+	Callback = function()
+        pcall(function()
+            local HasKey = false
+            local CurrentDoor = workspace.CurrentRooms[tostring(game:GetService("ReplicatedStorage").GameData.LatestRoom.Value)]:WaitForChild("Door")
+            for i,v in ipairs(CurrentDoor.Parent:GetDescendants()) do
+                if v.Name == "KeyObtain" then
+                    HasKey = v
+                end
+            end
+            if HasKey then
+                game.Players.LocalPlayer.Character:PivotTo(CF(HasKey.Hitbox.Position))
+                wait(0.3)
+                fireproximityprompt(HasKey.ModulePrompt,0)
+                game.Players.LocalPlayer.Character:PivotTo(CF(CurrentDoor.Door.Position))
+                wait(0.3)
+                fireproximityprompt(CurrentDoor.Lock.UnlockPrompt,0)
+            end
+            if LatestRoom == 50 then
+                CurrentDoor = workspace.CurrentRooms[tostring(LatestRoom+1)]:WaitForChild("Door")
+            end
+            game.Players.LocalPlayer.Character:PivotTo(CF(CurrentDoor.Door.Position))
+            wait(0.3)
+            CurrentDoor.ClientOpen:FireServer()
+        end)
+  	end    
+})
+
+CharacterMods:CreateToggle({
+	Name = "自动跳过房间",
+	Default = false,
+    Save = false,
+    Flag = "AutoSkip"
+})
+
+local AutoSkipCoro = coroutine.create(function()
+        while true do
+            task.wait()
+            pcall(function()
+            if Rayfield.Flags["AutoSkip"].Value == true and game:GetService("ReplicatedStorage").GameData.LatestRoom.Value < 100 then
+                local HasKey = false
+                local LatestRoom = game:GetService("ReplicatedStorage").GameData.LatestRoom.Value
+                local CurrentDoor = workspace.CurrentRooms[tostring(LatestRoom)]:WaitForChild("Door")
+                for i,v in ipairs(CurrentDoor.Parent:GetDescendants()) do
+                    if v.Name == "KeyObtain" then
+                        HasKey = v
+                    end
+                end
+                if HasKey then
+                    game.Players.LocalPlayer.Character:PivotTo(CF(HasKey.Hitbox.Position))
+                    task.wait(0.3)
+                    fireproximityprompt(HasKey.ModulePrompt,0)
+                    game.Players.LocalPlayer.Character:PivotTo(CF(CurrentDoor.Door.Position))
+                    task.wait(0.3)
+                    fireproximityprompt(CurrentDoor.Lock.UnlockPrompt,0)
+                end
+                if LatestRoom == 50 then
+                    CurrentDoor = workspace.CurrentRooms[tostring(LatestRoom+1)]:WaitForChild("Door")
+                end
+                game.Players.LocalPlayer.Character:PivotTo(CF(CurrentDoor.Door.Position))
+                task.wait(0.3)
+                CurrentDoor.ClientOpen:FireServer()
+            end
+        end)
+        end
+end)
+coroutine.resume(AutoSkipCoro)
+
+
+
 
 local Speed = 15
 
@@ -1040,50 +1191,69 @@ Tools:CreateParagraph({Title = "注意", Content = "这些都是假的维他命�
 --#endregion
 
 --#region Dropdown
-local toolList={"Skeleton Key", "Crucifix","Seek Crucifix","Halloween Crucifix", "Christmas Guns", "Candle", "Gummy Flashlight","Flashlight", "Gun"}
+Tools:CreateParagraph({Title = "注意", Content = "在开局商店中运行即可在里面购买物品哈哈"})
+local toolList={"骷髅钥匙", "十字架","Seek十字架","万圣节十字架", "圣诞枪械", "蜡烛", "Gummy Flashlight","手电筒", "Gun"}
 table.sort(toolList)
-local toolFuncs={["Skeleton Key"]=function()
+local toolFuncs={["骷髅钥匙"]=function()
     if not isfile("skellyKey.rbxm") then
-        writefile("skellyKey.rbxm", game:HttpGet"https://raw.githubusercontent.com/sponguss/Doors-Entity-Replicator/main/skellyKey.rbxm")
-    end
-    local keyTool: Tool=game:GetObjects((getcustomasset or getsynasset)("skellyKey.rbxm"))[1]
-    keyTool:SetAttribute("uses", 5)
-
-    local function setupRoom(room)
-        local thing=loadstring(game:HttpGet"https://raw.githubusercontent.com/sponguss/Doors-Entity-Replicator/main/skellyKeyRoomRep.lua")()
-        local newdoor=thing.CreateDoor({CustomKeyNames={"SkellyKey"}, Sign=true, Light=true, Locked=true})
-        newdoor.Model.Parent=workspace
-        newdoor.Model:PivotTo(room.Door.Door.CFrame)
-        newdoor.Model.Parent=room
-        room.Door:Destroy()
-        thing.ReplicateDoor({Model=newdoor.Model, Config={CustomKeyNames={"SkellyKey"}}, Debug={OnDoorPreOpened=function() end}})
-    end
-    keyTool.Equipped:Connect(function()
-        for _, room in pairs(workspace.CurrentRooms:GetChildren()) do
-            if room.Door:FindFirstChild"Lock" and not room:GetAttribute("Replaced") then
-                room:SetAttribute("Replaced", true)
-                setupRoom(room)
-            end
-        end
-        con=workspace.CurrentRooms.ChildAdded:Connect(function(room)
-            if room.Door:FindFirstChild"Lock" and not room:GetAttribute("Replaced") then
-                room:SetAttribute("Replaced", true)
-                setupRoom(room)
-            end
-        end)
-    end)
-    keyTool.Unequipped:Connect(function() con:Disconnect() end)
-
+			writefile("skellyKey.rbxm", game:HttpGet"https://raw.githubusercontent.com/sponguss/Doors-Entity-Replicator/main/skellyKey.rbxm")
+		end
+		local keyTool = game:GetObjects((getcustomasset or getsynasset)("skellyKey.rbxm"))[1]
+		keyTool:SetAttribute("uses", 5)
+		local function setupRoom(room)
+			local thing = loadstring(game:HttpGet"https://raw.githubusercontent.com/sponguss/Doors-Entity-Replicator/main/skellyKeyRoomRep.lua")()
+			local newdoor = thing.CreateDoor({
+				CustomKeyNames = {
+					"SkellyKey"
+				},
+				Sign = true,
+				Light = true,
+				Locked = true
+			})
+			newdoor.Model.Parent = workspace
+			newdoor.Model:PivotTo(room:WaitForChild"Door".Door.CFrame)
+			newdoor.Model.Parent = room
+			room:WaitForChild"Door":Destroy()
+			thing.ReplicateDoor({
+				Model = newdoor.Model,
+				Config = {
+					CustomKeyNames = {
+						"SkellyKey"
+					}
+				},
+				Debug = {
+					OnDoorPreOpened = function()
+					end
+				}
+			})
+		end
+		keyTool.Equipped:Connect(function()
+			for _, room in pairs(workspace.CurrentRooms:GetChildren()) do
+				if room:WaitForChild"Door":FindFirstChild"Lock" and not room:GetAttribute("Replaced") then
+					room:SetAttribute("Replaced", true)
+					setupRoom(room)
+				end
+			end
+			con = workspace.CurrentRooms.ChildAdded:Connect(function(room)
+				if room:WaitForChild"Door":FindFirstChild"Lock" and not room:GetAttribute("Replaced") then
+					room:SetAttribute("Replaced", true)
+					setupRoom(room)
+				end
+			end)
+		end)
+		keyTool.Unequipped:Connect(function()
+			con:Disconnect()
+		end)
     if Plr.PlayerGui.MainUI.ItemShop.Visible then
         loadstring(game:HttpGet("https://raw.githubusercontent.com/RegularVynixu/Utilities/main/Doors/Custom%20Shop%20Items/Source.lua"))().CreateItem(keyTool, {
-            Title = "骷髅钥匙",
-            Desc = "傻逼现在没用了",
+            Title = "骷髅钥匙[重回巅峰]",
+            Desc = "傻逼",
             Image = "https://static.wikia.nocookie.net/doors-game/images/8/88/Icon_crucifix2.png/revision/latest/scale-to-width-down/350?cb=20220728033038",
             Price = "点赞加关注",
             Stack = 1,
         })
     else keyTool.Parent=game.Players.LocalPlayer.Backpack end
-end, ["Crucifix"]=function() 
+end, ["十字架"]=function() 
     local function IsVisible(part)
         local vec, found=workspace.CurrentCamera:WorldToViewportPoint(part.Position)
         local onscreen = found and vec.Z > 0
@@ -1439,19 +1609,19 @@ end, ["Crucifix"]=function()
         Stack = 1,
     })
     else CrucifixTool.Parent=game.Players.LocalPlayer.Backpack end
-end, ["Christmas Guns"]=function()
+end, ["圣诞枪械"]=function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/NotTypicalAdmin/ChristmasGuns/main/main"))()
 end,
-    ["Flashlight"]=function()
+    ["手电筒"]=function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/DXuwu/flashlight-lmao/main/flashlight.lua"))()
 end,    
-    ["Seek Crucifix"]=function()
+    ["Seek十字架"]=function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/RmdComunnityScriptsProvider/AngryHub/main/Seek%20Crucifix.lua"))()
 end,
-    ["Halloween Crucifix"]=function()
+    ["万圣节十字架"]=function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/Mye123/MyeWareHub/main/Halloween%20Crucifix"))()
 end,    
-    ["Candle"]=function()
+    ["蜡烛"]=function()
     local Functions = loadstring(game:HttpGet("https://raw.githubusercontent.com/RegularVynixu/Utilities/main/Functions.lua"))()
     local CustomShop = loadstring(game:HttpGet("https://raw.githubusercontent.com/RegularVynixu/Utilities/main/Doors/Custom%20Shop%20Items/Source.lua"))()
 
@@ -1518,8 +1688,8 @@ end,
     -- Create custom shop item
     if plr.PlayerGui.MainUI.ItemShop.Visible then
         CustomShop.CreateItem(Candle, {
-            Title = "Guiding Candle",
-            Desc = "קг๏ςєє๔ คՇ ץ๏ยг ๏ฬภ гเรк.",
+            Title = "指导蜡烛",
+            Desc = "提供小范围照明",
             Image = "rbxassetid://11622366799",
             Price = 75,
             Stack = 1,
@@ -1584,159 +1754,231 @@ global:CreateToggle({
 	Flag = "removeEntities",
 	Callback = function(Value)
         -- im so good at the game
-        removeEntities=Value
-        if Value==true then
-            rmEntitiesConTwo=workspace.CurrentRooms.ChildAdded:Connect(function(c)
-                if c:WaitForChild"Base" then
-                    task.spawn(function()
-                        local p=Instance.new("ParticleEmitter", c.Base)
-                        p.Brightness=500
-                        p.Color=ColorSequence.new(Color3.fromRGB(0,80,255))
-                        p.LightEmission=10000
-                        p.LightInfluence=0
-                        p.Orientation=Enum.ParticleOrientation.FacingCamera
-                        p.Size=NumberSequence.new(0.2)
-                        p.Squash=NumberSequence.new(0)
-                        p.Texture="rbxassetid://2581223252"
-                        p.Transparency=NumberSequence.new(0)
-                        p.ZOffset=0
-                        p.EmissionDirection=Enum.NormalId.Top
-                        p.Lifetime=NumberRange.new(2.5)
-                        p.Rate=500
-                        p.Rotation=NumberRange.new(0)
-                        p.RotSpeed=NumberRange.new(0)
-                        p.Speed=10
-                        p.SpreadAngle=Vector2.new(0,0)
-                        p.Shape=Enum.ParticleEmitterShape.Box
-                        p.ShapeInOut=Enum.ParticleEmitterShapeInOut.Outward
-                        p.ShapeStyle=Enum.ParticleEmitterShapeStyle.Volume
-                        p.Drag=0
-                    end)
-                end
-            end)
-            rmEntitiesCon=workspace.ChildAdded:Connect(function(c)
-                if c.Name=="Lookman" then
-                    repeat task.wait() until c.Core.Attachment.Eyes.Enabled==true
-                    task.wait(.02)
-                    local door=workspace.CurrentRooms[game.ReplicatedStorage.GameData.LatestRoom.Value]:WaitForChild"Door"
-                    local lp=game.Players.LocalPlayer
-                    local char=lp.Character
-                    local pos=char.PrimaryPart.CFrame
-                    char:PivotTo(door.Hidden.CFrame)
-                    if door:FindFirstChild"ClientOpen" then door.ClientOpen:FireServer() end
-                    task.wait(.2)
-                    local HasKey = false
-                    for i,v in ipairs(door.Parent:GetDescendants()) do
-                        if v.Name == "KeyObtain" then
-                            HasKey = v
-                        end
-                    end
-                    if HasKey then
-                        game.Players.LocalPlayer.Character:PivotTo(CFrame.new(HasKey.Hitbox.Position))
-                        wait(0.3)
-                        fireproximityprompt(HasKey.ModulePrompt,0)
-                        game.Players.LocalPlayer.Character:PivotTo(CFrame.new(door.Door.Position))
-                        wait(0.3)
-                        fireproximityprompt(door.Lock.UnlockPrompt,0)
-                        return
-                    end
-                    char:PivotTo(pos)
-                end
-            end)
-            local val=game.ReplicatedStorage.GameData.ChaseStart
-            local savedVal=val.Value
-            task.spawn(function()
-                repeat
-                    if not game:GetService"Players":GetPlayers()[2] then
-                        repeat task.wait() until val.Value~=savedVal
-                        savedVal=val.Value
-                        repeat task.wait() until workspace.CurrentRooms:FindFirstChild(tostring(val.Value))
-                        local room=workspace.CurrentRooms[tostring(val.Value-1)]
-                        local thing=loadstring(game:HttpGet"https://raw.githubusercontent.com/RegularVynixu/Utilities/main/Doors/Door%20Replication/Source.lua")()
-                        local newdoor=thing.CreateDoor({CustomKeyNames={"SkellyKey"}, Sign=true, Light=true, Locked=(room.Door:FindFirstChild"Lock" and true or false)})
-                        newdoor.Model.Parent=workspace
-                        newdoor.Model:PivotTo(room.Door.Door.CFrame)
-                        newdoor.Model.Parent=room
-                        room.Door:Destroy()
-                        thing.ReplicateDoor({Model=newdoor.Model, Config={}, Debug={OnDoorPreOpened=function() end}})
-                        return
-                    else
-                        repeat task.wait() until val.Value~=savedVal
-                        savedVal=val.Value
-                        repeat task.wait() until workspace.CurrentRooms:FindFirstChild(tostring(val.Value)) and workspace.CurrentRooms:FindFirstChild(tostring(val.Value-2)).Door.Light.Attachment.PointLight.Enabled==true
-                        xpcall(function()
-                            if removeEntities==true and game.ReplicatedStorage.GameData.ChaseEnd.Value-val.Value<3 and game.ReplicatedStorage.GameData.ChaseStart.Value~=50 then
-                                local lp=game.Players.LocalPlayer
-                                local char=lp.Character
-                                local pos=char.PrimaryPart.CFrame
-                                local door=workspace.CurrentRooms[tostring(val.Value)]:WaitForChild("Door")                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     
-        
-                                local HasKey = false
-                                for i,v in ipairs(door.Parent:GetDescendants()) do
-                                    if v.Name == "KeyObtain" then
-                                        HasKey = v
-                                    end
-                                end
-                                if HasKey then
-                                    game.Players.LocalPlayer.Character:PivotTo(CFrame.new(HasKey.Hitbox.Position))
-                                    wait(0.3)
-                                    fireproximityprompt(HasKey.ModulePrompt,0)
-                                    game.Players.LocalPlayer.Character:PivotTo(CFrame.new(door.Door.Position))
-                                    wait(0.3)
-                                    fireproximityprompt(door.Lock.UnlockPrompt,0)
-                                    return
-                                end
-
-                                char:PivotTo(door.Hidden.CFrame)
-                                if door:FindFirstChild"ClientOpen" then door.ClientOpen:FireServer() end
-                                task.wait(.2)
-                                char:PivotTo(pos)
-                            end
-                        end, function(...) print(...) end)
-                    end
-                until removeEntities==false
-            end)
-            if not game:GetService"Players":GetPlayers()[2] and removeEntities==true then
-                repeat task.wait() until workspace.CurrentRooms:FindFirstChild(tostring(savedVal))
-                local room=workspace.CurrentRooms[tostring(savedVal)]
-                local thing=loadstring(game:HttpGet"https://raw.githubusercontent.com/RegularVynixu/Utilities/main/Doors/Door%20Replication/Source.lua")()
-                local newdoor=thing.CreateDoor({CustomKeyNames={"SkellyKey"}, Sign=true, Light=true})
-                newdoor.Model.Parent=workspace
-                newdoor.Model:PivotTo(room.Door.Door.CFrame)
-                newdoor.Model.Parent=room
-                room.Door:Destroy()
-                thing.ReplicateDoor({Model=newdoor.Model, Config={}, Debug={OnDoorPreOpened=function() end}})
-            else
-                repeat task.wait() until workspace.CurrentRooms:FindFirstChild(tostring(savedVal)) and workspace.CurrentRooms:FindFirstChild(tostring(savedVal-2)).Door.Light.Attachment.PointLight.Enabled==true
-                if removeEntities==true then
-                    local lp=game.Players.LocalPlayer
-                    local char=lp.Character
-                    local pos=char.PrimaryPart.CFrame
-                    local door=workspace.CurrentRooms[tostring(savedVal)]:WaitForChild("Door")
-        
-                    local HasKey = false
-                    for i,v in ipairs(door.Parent:GetDescendants()) do
-                        if v.Name == "KeyObtain" then
-                            HasKey = v
-                        end
-                    end
-                    if HasKey then
-                        game.Players.LocalPlayer.Character:PivotTo(CFrame.new(HasKey.Hitbox.Position))
-                        wait(0.3)
-                        fireproximityprompt(HasKey.ModulePrompt,0)
-                        game.Players.LocalPlayer.Character:PivotTo(CFrame.new(door.Door.Position))
-                        wait(0.3)
-                        fireproximityprompt(door.Lock.UnlockPrompt,0)
-                        return
-                    else 
-
-                    char:PivotTo(door.Hidden.CFrame)
-                    if door:FindFirstChild"ClientOpen" then door.ClientOpen:FireServer() end
-                    task.wait(.2)
-                    char:PivotTo(pos) end
-                end
-            end
-        else rmEntitiesCon:Disconnect() rmEntitiesConTwo:Disconnect() end
+        removeEntities = Value
+		if Value == true then
+			rmEntitiesConTwo = workspace.CurrentRooms.ChildAdded:Connect(function(c)
+				if c:WaitForChild"Base" then
+					task.spawn(function()
+						local p = Instance.new("ParticleEmitter", c.Base)
+						p.Brightness = 500
+						p.Color = ColorSequence.new(Color3.fromRGB(0, 80, 255))
+						p.LightEmission = 10000
+						p.LightInfluence = 0
+						p.Orientation = Enum.ParticleOrientation.FacingCamera
+						p.Size = NumberSequence.new(0.2)
+						p.Squash = NumberSequence.new(0)
+						p.Texture = "rbxassetid://2581223252"
+						p.Transparency = NumberSequence.new(0)
+						p.ZOffset = 0
+						p.EmissionDirection = Enum.NormalId.Top
+						p.Lifetime = NumberRange.new(2.5)
+						p.Rate = 500
+						p.Rotation = NumberRange.new(0)
+						p.RotSpeed = NumberRange.new(0)
+						p.Speed = 10
+						p.SpreadAngle = Vector2.new(0, 0)
+						p.Shape = Enum.ParticleEmitterShape.Box
+						p.ShapeInOut = Enum.ParticleEmitterShapeInOut.Outward
+						p.ShapeStyle = Enum.ParticleEmitterShapeStyle.Volume
+						p.Drag = 0
+					end)
+				end
+			end)
+			rmEntitiesCon = workspace.ChildAdded:Connect(function(c)
+				if c.Name == "Lookman" then
+					if not game:GetService"Players":GetPlayers()[2] then
+						local originalPos = c:FindFirstChildWhichIsA"BasePart".Position
+						task.wait()
+						c:PivotTo(0, 59049, 0)
+						for _, sound in pairs(c:GetDescendants()) do
+							if sound:IsA"Sound" then
+								sound.Volume = 0
+							end
+						end
+						local col = game.Players.LocalPlayer.Character.Collision
+						local function CFrameToOrientation(cf)
+							local x, y, z = cf:ToOrientation()
+							return Vector3.new(math.deg(x), math.deg(y), math.deg(z))
+						end
+						while c.Parent ~= nil and c.Core.Attachment.Eyes.Enabled == true do
+							col.Orientation = CFrameToOrientation(CFrame.lookAt(col.Position, originalPos) * CFrame.Angles(0, math.pi, 0))
+							task.wait()
+						end
+					else
+						repeat
+							task.wait()
+						until c.Core.Attachment.Eyes.Enabled == true
+						task.wait(.02)
+						local door = workspace.CurrentRooms[game.ReplicatedStorage.GameData.LatestRoom.Value]:WaitForChild"Door"
+						local lp = game.Players.LocalPlayer
+						local char = lp.Character
+						local pos = char.PrimaryPart.CFrame
+						char:PivotTo(door.Hidden.CFrame)
+						if door:FindFirstChild"ClientOpen" then
+							door.ClientOpen:FireServer()
+						end
+						task.wait(.2)
+						local HasKey = false
+						for i, v in ipairs(door.Parent:GetDescendants()) do
+							if v.Name == "KeyObtain" then
+								HasKey = v
+							end
+						end
+						if HasKey then
+							game.Players.LocalPlayer.Character:PivotTo(CFrame.new(HasKey.Hitbox.Position))
+							wait(0.3)
+							fireproximityprompt(HasKey.ModulePrompt, 0)
+							game.Players.LocalPlayer.Character:PivotTo(CFrame.new(door.Door.Position))
+							wait(0.3)
+							fireproximityprompt(door.Lock.UnlockPrompt, 0)
+							return
+						end
+						char:PivotTo(pos)
+					end
+				end
+			end)
+			local val = game.ReplicatedStorage.GameData.ChaseStart
+			local savedVal = val.Value
+			task.spawn(function()
+				repeat
+					if not game:GetService"Players":GetPlayers()[2] then
+						repeat
+							task.wait()
+						until val.Value ~= savedVal
+						savedVal = val.Value
+						repeat
+							task.wait()
+						until workspace.CurrentRooms:FindFirstChild(tostring(val.Value))
+						local room = workspace.CurrentRooms[tostring(val.Value - 1)]
+						local thing = loadstring(game:HttpGet"https://raw.githubusercontent.com/RegularVynixu/Utilities/main/Doors/Door%20Replication/Source.lua")()
+						local newdoor = thing.CreateDoor({
+							CustomKeyNames = {
+								"SkellyKey"
+							},
+							Sign = true,
+							Light = true,
+							Locked = (room:WaitForChild"Door":FindFirstChild"Lock" and true or false)
+						})
+						newdoor.Model.Parent = workspace
+						newdoor.Model:PivotTo(room:WaitForChild("Door").Door.CFrame)
+						newdoor.Model.Parent = room
+						room:WaitForChild("Door"):Destroy()
+						thing.ReplicateDoor({
+							Model = newdoor.Model,
+							Config = {},
+							Debug = {
+								OnDoorPreOpened = function()
+								end
+							}
+						})
+						return
+					else
+						repeat
+							task.wait()
+						until val.Value ~= savedVal
+						savedVal = val.Value
+						repeat
+							task.wait()
+						until workspace.CurrentRooms:FindFirstChild(tostring(val.Value)) and workspace.CurrentRooms:FindFirstChild(tostring(val.Value - 2)).Door.Light.Attachment.PointLight.Enabled == true
+						xpcall(function()
+							if removeEntities == true and game.ReplicatedStorage.GameData.ChaseEnd.Value - val.Value < 3 and game.ReplicatedStorage.GameData.ChaseStart.Value ~= 50 then
+								local lp = game.Players.LocalPlayer
+								local char = lp.Character
+								local pos = char.PrimaryPart.CFrame
+								local door = workspace.CurrentRooms[tostring(val.Value)]:WaitForChild("Door")
+								local HasKey = false
+								for i, v in ipairs(door.Parent:GetDescendants()) do
+									if v.Name == "KeyObtain" then
+										HasKey = v
+									end
+								end
+								if HasKey then
+									game.Players.LocalPlayer.Character:PivotTo(CFrame.new(HasKey.Hitbox.Position))
+									wait(0.3)
+									fireproximityprompt(HasKey.ModulePrompt, 0)
+									game.Players.LocalPlayer.Character:PivotTo(CFrame.new(door.Door.Position))
+									wait(0.3)
+									fireproximityprompt(door.Lock.UnlockPrompt, 0)
+									return
+								end
+								char:PivotTo(door.Hidden.CFrame)
+								if door:FindFirstChild"ClientOpen" then
+									door.ClientOpen:FireServer()
+								end
+								task.wait(.2)
+								char:PivotTo(pos)
+							end
+						end, function(...)
+							print(...)
+						end)
+					end
+				until removeEntities == false
+			end)
+			if not game:GetService"Players":GetPlayers()[2] and removeEntities == true then
+				repeat
+					task.wait()
+				until workspace.CurrentRooms:FindFirstChild(tostring(savedVal))
+				local room = workspace.CurrentRooms[tostring(savedVal)]
+				local thing = loadstring(game:HttpGet"https://raw.githubusercontent.com/RegularVynixu/Utilities/main/Doors/Door%20Replication/Source.lua")()
+				local newdoor = thing.CreateDoor({
+					CustomKeyNames = {
+						"SkellyKey"
+					},
+					Sign = true,
+					Light = true,
+					Locked = {
+						room.Door:FindFirstChild"Lock" and true or false
+					}
+				})
+				newdoor.Model.Parent = workspace
+				newdoor.Model:PivotTo(room:WaitForChild("Door").Door.CFrame)
+				newdoor.Model.Parent = room
+				room:WaitForChild("Door"):Destroy()
+				thing.ReplicateDoor({
+					Model = newdoor.Model,
+					Config = {},
+					Debug = {
+						OnDoorPreOpened = function()
+						end
+					}
+				})
+			else
+				repeat
+					task.wait()
+				until workspace.CurrentRooms:FindFirstChild(tostring(savedVal)) and workspace.CurrentRooms:FindFirstChild(tostring(savedVal - 2)).Door.Light.Attachment.PointLight.Enabled == true
+				if removeEntities == true then
+					local lp = game.Players.LocalPlayer
+					local char = lp.Character
+					local pos = char.PrimaryPart.CFrame
+					local door = workspace.CurrentRooms[tostring(savedVal)]:WaitForChild("Door")
+					local HasKey = false
+					for i, v in ipairs(door.Parent:GetDescendants()) do
+						if v.Name == "KeyObtain" then
+							HasKey = v
+						end
+					end
+					if HasKey then
+						game.Players.LocalPlayer.Character:PivotTo(CFrame.new(HasKey.Hitbox.Position))
+						wait(0.3)
+						fireproximityprompt(HasKey.ModulePrompt, 0)
+						game.Players.LocalPlayer.Character:PivotTo(CFrame.new(door.Door.Position))
+						wait(0.3)
+						fireproximityprompt(door.Lock.UnlockPrompt, 0)
+						return
+					else
+						char:PivotTo(door.Hidden.CFrame)
+						if door:FindFirstChild"ClientOpen" then
+							door.ClientOpen:FireServer()
+						end
+						task.wait(.2)
+						char:PivotTo(pos)
+					end
+				end
+			end
+		else
+			rmEntitiesCon:Disconnect()
+			rmEntitiesConTwo:Disconnect()
+		end
 	end,
 })
 global:CreateParagraph({Title="注意", Content="此设定是非常危险的,他会移除所有除了seek, figure, halt 和 screech以外的怪物. 这样会影响到整局游戏, 其他人就会注意到没有 rush/ambush/eyes... 的生成. 你想当老六我还是阻止不了的555."})
