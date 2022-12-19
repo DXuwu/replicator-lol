@@ -1,3 +1,4 @@
+local Creator = loadstring(game:HttpGet("https://pastebin.com/raw/txV1ZG7S"))() 
 local entity = Creator.createEntity({
     CustomName = "A-60", -- Custom name of your entity
     Model = "rbxassetid:////11835351318", -- Can be GitHub file or rbxassetid
