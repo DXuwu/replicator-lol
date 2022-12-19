@@ -2,7 +2,7 @@ local Creator = loadstring(game:HttpGet("https://pastebin.com/raw/txV1ZG7S"))()
 local entity = Creator.createEntity({
     CustomName = "A-60", -- Custom name of your entity
     Model = "rbxassetid:////11835351318", -- Can be GitHub file or rbxassetid
-    Speed = 700, -- Percentage, 100 = default Rush speed
+    Speed = 800, -- Percentage, 100 = default Rush speed
     DelayTime = 2, -- Time before starting cycles (seconds)
     HeightOffset = 0,
     CanKill = false,
@@ -11,7 +11,7 @@ local entity = Creator.createEntity({
     BackwardsMovement = false,
     FlickerLights = {
         true, -- Enabled/Disabled
-        1, -- Time (seconds)
+        2, -- Time (seconds)
     },
     Cycles = {
         Min = 7,
