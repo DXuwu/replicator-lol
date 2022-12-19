@@ -47,7 +47,7 @@ local entity = Creator.createEntity({
             },
         },
     },
-    CustomDialog = {"You died to Rush...", "your balls look dry", "Can I put some lotion on them?"}, -- Custom death message
+    CustomDialog = {"你死于A-60...", "等一下", "鸡"}, -- Custom death message
 })
 
 -----[[ Advanced ]]-----
