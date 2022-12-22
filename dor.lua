@@ -863,10 +863,8 @@ CharacterMods:CreateButton({
 CharacterMods:CreateParagraph({Title = "注意", Content = "你需要至少一个复活,这样就可以跳过 \"你只可以复活一次\" 的信息, 或其他东东？？？"})
 
 		
-CharacterMods:CreateToggle({
+CharacterMods:CreateButton({
 	Name = "开启第三人称",
-	CurrentValue = false,
-	Flag = "Toggle1", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
 	Callback = function()
 		workspace.CurrentCamera:Destroy()
 			task.wait(.1)
@@ -874,7 +872,7 @@ CharacterMods:CreateToggle({
 			workspace.CurrentCamera.CameraSubject = workspace[game.Players.LocalPlayer.Name].Head
 	end,
 })
-	
+CharacterMods:CreateParagraph({Title = "注意", Content = "第三人称开启后无法取消"})
 local figureMorphEnabled
 global:CreateToggle({
 	Name = "变成 Figure",
